@@ -50,7 +50,20 @@ test("response returned by receiveMessage includes two results if two commands a
 });
 
 //Test 10
+test("responds correctly to the status check command", function () {
+  let commands = [
+    {commandType: "STATUS_CHECK"},
+    {commandType: 'MODE_CHANGE', value: 'LOW_POWER'},
+  ];
+  let message = new Message("testMessage", commands);
+  let rover = new Rover(1);
+  let response = rover.receiveMessage(message);
 
+  expect(response.results[0].completed).toBe(true);
+  expect(response.results[0].roverStatus['mode']).toBe('NORMAL');
+  expect(response.results[0].roverStatus['generatorWatts']).toBe(110);
+  expect(response.results[0].roverStatus['position']).toBe(1);
+});
 //Test 11
 
 //Test 12

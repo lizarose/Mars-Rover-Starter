@@ -29,7 +29,7 @@ class Rover {
                }
             }
          }
-         console.log(roverResp);
+         console.log(roverResp.results)
       return roverResp;
     }
 }
