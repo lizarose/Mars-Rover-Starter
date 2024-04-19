@@ -22,15 +22,32 @@ test("constructor sets position and default values for mode and generatorWatts",
 
 //Test 8
 test("response returned by receiveMessage contains the name of the message", function () {
-  let message = new Message("testMessage");
+  let commands = [
+    {commandType: "STATUS_CHECK"},
+    {commandType: 'MODE_CHANGE', value: 'LOW_POWER'},
+    {commandType: 'MOVE', value: 'position'}
+  ];
+  let message = new Message("testMessage", commands);
   let rover = new Rover(1);
   let response = rover.receiveMessage(message)
+ 
 
-  expect(response).toEqual("testMessage");
+  expect(response.response).toEqual("testMessage");
 });
 
 //Test 9
-
+test("response returned by receiveMessage includes two results if two commands are sent in the message", function () {
+  let commands = [
+    {commandType: "STATUS_CHECK"},
+    {commandType: 'MODE_CHANGE', value: 'LOW_POWER'},
+    // {commandType: 'MOVE', value: 'position'}
+  ];
+  let message = new Message("testMessage", commands);
+  let rover = new Rover(1);
+  let response = rover.receiveMessage(message);
+  
+  expect(response.results.length).toBe(2);
+});
 
 //Test 10
 
