@@ -65,7 +65,19 @@ test("responds correctly to the status check command", function () {
   expect(response.results[0].roverStatus['position']).toBe(1);
 });
 //Test 11
+test("responds correctly to the mode change command", function () {
+  let commands = [
+    {commandType: 'MODE_CHANGE', value: 'LOW_POWER'},
+    {commandType: "STATUS_CHECK"},
+    
+  ];
+  let message = new Message("testMessage", commands);
+  let rover = new Rover(1);
+  let response = rover.receiveMessage(message);
 
+  expect(response.results[1].completed).toBe(true);
+  expect(response.results[1].roverStatus['mode']).toBe('LOW_POWER');
+});
 //Test 12
 
 //Test 13
