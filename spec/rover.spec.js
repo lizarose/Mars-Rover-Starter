@@ -69,7 +69,6 @@ test("responds correctly to the mode change command", function () {
   let commands = [
     {commandType: 'MODE_CHANGE', value: 'LOW_POWER'},
     {commandType: "STATUS_CHECK"},
-    
   ];
   let message = new Message("testMessage", commands);
   let rover = new Rover(1);
@@ -79,7 +78,33 @@ test("responds correctly to the mode change command", function () {
   expect(response.results[1].roverStatus['mode']).toBe('LOW_POWER');
 });
 //Test 12
+test("responds with a false completed value when attempting to move in LOW_POWER mode", function () {
+  let commands = [
+    {commandType: 'MODE_CHANGE', value: 'LOW_POWER'},
+    {commandType: "STATUS_CHECK"},
+  ];
+  let message = new Message("testMessage", commands);
+  let rover = new Rover(1);
+  let response = rover.receiveMessage(message);
+  message = ("testMessage", 'LOW_POWER');
 
+  expect(response.results[2].completed).toBe(false);
+  expect(response.results[1].roverStatus['mode']).toBe('LOW_POWER');
+});
 //Test 13
+test("responds with the position for the move command", function () {
+  let commands = [
+    {commandType: 'MOVE', value: '1234'},
+    //{commandType: 'MODE_CHANGE', value: 'LOW_POWER'},
+    {commandType: "STATUS_CHECK"},
+  ];
+  let message = new Message("testMessage", commands);
+  let rover = new Rover(1);
+  let response = rover.receiveMessage(message);
+  
+
+  expect(response.results[0].completed).toBe(true);
+  expect(response.results[1].roverStatus['position']).toBe(1234);
+});
 
 });

@@ -13,12 +13,15 @@ class Rover {
       for (let type of message.commands) {
            
          if (type.commandType === "MOVE") {
-            this.position = type.value;
+            this.position = Number(type.value);
             results.push({completed: true});
             
          } else if (type.commandType === "STATUS_CHECK") {
             results.push({completed: true, roverStatus: {mode: this.mode, generatorWatts: this.generatorWatts, position: this.position}});
-            
+               if (this.mode === "LOW_POWER") {
+                  results.push({completed: false});
+               }
+
          } else if (type.commandType === "MODE_CHANGE") {
             if (this.mode === "LOW_POWER") {
                console.log(`Can't be moved in this state.`);
@@ -29,6 +32,7 @@ class Rover {
                }
             }
          }
+
          console.log(roverResp.results)
       return roverResp;
     }
