@@ -23,16 +23,15 @@ test("constructor sets position and default values for mode and generatorWatts",
 //Test 8
 test("response returned by receiveMessage contains the name of the message", function () {
   let commands = [
-    {commandType: "STATUS_CHECK"},
     {commandType: 'MODE_CHANGE', value: 'LOW_POWER'},
-    {commandType: 'MOVE', value: 'position'}
+    {commandType: 'MOVE', value: 'position'},
+    {commandType: "STATUS_CHECK"},
   ];
   let message = new Message("testMessage", commands);
   let rover = new Rover(1);
   let response = rover.receiveMessage(message)
- 
 
-  expect(response.response).toEqual("testMessage");
+  expect(response.message).toEqual("testMessage");
 });
 
 //Test 9
@@ -40,7 +39,7 @@ test("response returned by receiveMessage includes two results if two commands a
   let commands = [
     {commandType: "STATUS_CHECK"},
     {commandType: 'MODE_CHANGE', value: 'LOW_POWER'},
-    // {commandType: 'MOVE', value: 'position'}
+    //{commandType: 'MOVE', value: 'position'}
   ];
   let message = new Message("testMessage", commands);
   let rover = new Rover(1);
@@ -52,59 +51,60 @@ test("response returned by receiveMessage includes two results if two commands a
 //Test 10
 test("responds correctly to the status check command", function () {
   let commands = [
+    {commandType: 'MODE_CHANGE', value: 'NORMAL'},
+    {commandType: 'MOVE', value: 1234},
     {commandType: "STATUS_CHECK"},
+  ];
+  let message = new Message("testMessage", commands);
+  let rover = new Rover(1);
+  let response = rover.receiveMessage(message);
+
+  expect(response.results[2].completed).toBe(true);
+  expect(response.results[2].roverStatus['mode']).toBe('NORMAL');
+  expect(response.results[2].roverStatus['generatorWatts']).toBe(110);
+  expect(response.results[2].roverStatus['position']).toBe(1234);
+});
+//Test 11
+test("responds correctly to the mode change command", function () {
+  let commands = [
     {commandType: 'MODE_CHANGE', value: 'LOW_POWER'},
+    {commandType: 'MOVE', value: 4321},
+    {commandType: "STATUS_CHECK"},
   ];
   let message = new Message("testMessage", commands);
   let rover = new Rover(1);
   let response = rover.receiveMessage(message);
 
   expect(response.results[0].completed).toBe(true);
-  expect(response.results[0].roverStatus['mode']).toBe('NORMAL');
-  expect(response.results[0].roverStatus['generatorWatts']).toBe(110);
-  expect(response.results[0].roverStatus['position']).toBe(1);
-});
-//Test 11
-test("responds correctly to the mode change command", function () {
-  let commands = [
-    {commandType: 'MODE_CHANGE', value: 'LOW_POWER'},
-    {commandType: "STATUS_CHECK"},
-  ];
-  let message = new Message("testMessage", commands);
-  let rover = new Rover(1);
-  let response = rover.receiveMessage(message);
-
-  expect(response.results[1].completed).toBe(true);
-  expect(response.results[1].roverStatus['mode']).toBe('LOW_POWER');
+  expect(response.results[2].roverStatus['mode']).toBe('LOW_POWER');
 });
 //Test 12
 test("responds with a false completed value when attempting to move in LOW_POWER mode", function () {
   let commands = [
     {commandType: 'MODE_CHANGE', value: 'LOW_POWER'},
+    {commandType: 'MOVE', value: 4321},
     {commandType: "STATUS_CHECK"},
   ];
   let message = new Message("testMessage", commands);
   let rover = new Rover(1);
   let response = rover.receiveMessage(message);
-  message = ("testMessage", 'LOW_POWER');
 
-  expect(response.results[2].completed).toBe(false);
-  expect(response.results[1].roverStatus['mode']).toBe('LOW_POWER');
+  expect(response.results[1].completed).toBe(false);
+  expect(response.results[2].roverStatus['position']).toBe(1);
 });
 //Test 13
 test("responds with the position for the move command", function () {
   let commands = [
-    {commandType: 'MOVE', value: '1234'},
-    //{commandType: 'MODE_CHANGE', value: 'LOW_POWER'},
+    {commandType: 'MOVE', value: 1234},
+    {commandType: 'MODE_CHANGE', value: 'LOW_POWER'},
     {commandType: "STATUS_CHECK"},
   ];
   let message = new Message("testMessage", commands);
   let rover = new Rover(1);
   let response = rover.receiveMessage(message);
   
-
   expect(response.results[0].completed).toBe(true);
-  expect(response.results[1].roverStatus['position']).toBe(1234);
+  expect(response.results[2].roverStatus.position).toEqual(1234);
 });
 
 });

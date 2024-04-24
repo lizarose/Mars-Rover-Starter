@@ -1,40 +1,40 @@
 class Rover {
-   // Write code here!
-   constructor(position) {
-      this.position = position;
-      this.mode = "NORMAL";
-      this.generatorWatts = 110;
-   }
-   receiveMessage(message) {
-      let results = [];
-      let response = message.name;
-      let roverResp = {response, results};
+  // Write code here!
+  constructor(position) {
+    this.position = position;
+    this.mode = "NORMAL";
+    this.generatorWatts = 110;
+  }
+  receiveMessage(message) {
+    let results = [];
+    let roverResp = { message: message.name, results };
 
-      for (let type of message.commands) {
-           
-         if (type.commandType === "MOVE") {
-            this.position = Number(type.value);
-            results.push({completed: true});
-            
-         } else if (type.commandType === "STATUS_CHECK") {
-            results.push({completed: true, roverStatus: {mode: this.mode, generatorWatts: this.generatorWatts, position: this.position}});
-               if (this.mode === "LOW_POWER") {
-                  results.push({completed: false});
-               }
+    for (let i = 0; i < message.commands.length; i++) {
+      let command = message.commands[i];
 
-         } else if (type.commandType === "MODE_CHANGE") {
-            if (this.mode === "LOW_POWER") {
-               console.log(`Can't be moved in this state.`);
-               results.push({completed: false});
-            } else {
-               this.mode = type.value;
-               results.push({completed: true});
-               }
-            }
-         }
-
-         console.log(roverResp.results)
-      return roverResp;
+      if (command.commandType === "MODE_CHANGE") {
+        this.mode = command.value;
+        results.push({ completed: true });
+      } else if (command.commandType === "MOVE") {
+        if (this.mode === "LOW_POWER") {
+          console.log("Can't be moved in this state.");
+          results.push({ completed: false });
+        } else {
+        this.position = Number(command.value);
+        results.push({ completed: true });
+        }
+      } else if (command.commandType === "STATUS_CHECK") {
+        results.push({
+          completed: true,
+          roverStatus: {
+            mode: this.mode,
+            generatorWatts: this.generatorWatts,
+            position: this.position,
+          },
+        });
+      }
     }
+    return roverResp;
+  }
 }
 module.exports = Rover;
